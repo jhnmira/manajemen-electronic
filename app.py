@@ -8,6 +8,8 @@ DB_CONFIG = {
     "user": "root",
     "password": "ZBokFDzGmJNIJfbcxNMiyYQVxPEvHLUF",
     "database": "railway"
+    "connection_timeout": 10,
+    "use_pure": True
 }
 
 def get_db():
@@ -22,6 +24,8 @@ def index():
     cursor.close()
     db.close()
     return render_template('index.html', data=data)
+except Exception as e:
+    return f"Koneksi database gagal: {e}", 500
 
 @app.route('/tambah', methods=['POST'])
 def tambah():
