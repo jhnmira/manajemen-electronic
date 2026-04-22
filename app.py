@@ -7,7 +7,7 @@ DB_CONFIG = {
     "host": "mysql.railway.internal",
     "user": "root",
     "password": "ZBokFDzGmJNIJfbcxNMiyYQVxPEvHLUF",
-    "database": "railway"
+    "database": "railway",
     "connection_timeout": 10,
     "use_pure": True
 }
@@ -17,15 +17,16 @@ def get_db():
 
 @app.route('/')
 def index():
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM produk")
-    data = cursor.fetchall()
-    cursor.close()
-    db.close()
-    return render_template('index.html', data=data)
-except Exception as e:
-    return f"Koneksi database gagal: {e}", 500
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM produk")
+        data = cursor.fetchall()
+        cursor.close()
+        db.close()
+        return render_template('index.html', data=data)
+    except Exception as e:
+        return f"Koneksi database gagal: {e}", 500
 
 @app.route('/tambah', methods=['POST'])
 def tambah():
