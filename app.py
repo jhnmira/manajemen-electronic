@@ -1,21 +1,34 @@
 from flask import Flask, render_template, request, redirect
 import mysql.connector
+import os
 
 app = Flask(__name__)
 
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="produk_db"
-)
+DB_CONFIG = {
+    "host": os.environ.get("MYSQLHOST"),
+    "user": os.environ.get("MYSQLUSER"),
+    "password": os.environ.get("MYSQLPASSWORD"),
+    "database": os.environ.get("MYSQLDATABASE"),
+    "port": int(os.environ.get("MYSQLPORT", 3306)),
+    "connection_timeout": 10,
+    "use_pure": True
+}
+
+def get_db():
+    return mysql.connector.connect(**DB_CONFIG)
 
 @app.route('/')
 def index():
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM produk")
-    data = cursor.fetchall()
-    return render_template('index.html', data=data)
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM produk")
+        data = cursor.fetchall()
+        cursor.close()
+        db.close()
+        return render_template('index.html', data=data)
+    except Exception as e:
+        return f"Koneksi database gagal: {e}", 500
 
 @app.route('/tambah', methods=['POST'])
 def tambah():
@@ -23,27 +36,35 @@ def tambah():
     kategori = request.form['kategori']
     harga = request.form['harga']
     stok = request.form['stok']
-
+    db = get_db()
     cursor = db.cursor()
     cursor.execute(
         "INSERT INTO produk (nama_produk, kategori, harga, stok) VALUES (%s,%s,%s,%s)",
         (nama, kategori, harga, stok)
     )
     db.commit()
+    cursor.close()
+    db.close()
     return redirect('/')
 
 @app.route('/hapus/<int:id>')
 def hapus(id):
+    db = get_db()
     cursor = db.cursor()
     cursor.execute("DELETE FROM produk WHERE id=%s", (id,))
     db.commit()
+    cursor.close()
+    db.close()
     return redirect('/')
 
 @app.route('/edit/<int:id>')
 def edit(id):
+    db = get_db()
     cursor = db.cursor()
     cursor.execute("SELECT * FROM produk WHERE id=%s", (id,))
     data = cursor.fetchone()
+    cursor.close()
+    db.close()
     return render_template('edit.html', data=data)
 
 @app.route('/update/<int:id>', methods=['POST'])
@@ -52,14 +73,17 @@ def update(id):
     kategori = request.form['kategori']
     harga = request.form['harga']
     stok = request.form['stok']
-
+    db = get_db()
     cursor = db.cursor()
     cursor.execute(
         "UPDATE produk SET nama_produk=%s, kategori=%s, harga=%s, stok=%s WHERE id=%s",
         (nama, kategori, harga, stok, id)
     )
     db.commit()
+    cursor.close()
+    db.close()
     return redirect('/')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
