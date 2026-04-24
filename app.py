@@ -51,6 +51,11 @@ def tambah():
     db.close()
     return redirect('/')
 
+# nampilin halaman form tambah produk
+@app.route('/tambah-produk')
+def tambah_produk():
+    return render_template('tambah.html')
+
 # hapus produk berdasarkan id nya
 @app.route('/hapus/<int:id>')
 def hapus(id):
