@@ -111,6 +111,26 @@ def update(id):
 def tambah_produk():
     return render_template('tambah.html')
 
+# nampilin grafik riwayat stok
+@app.route('/grafik')
+def grafik():
+    try:
+        db = get_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM produk ORDER BY nama_produk")
+        produk_list = cursor.fetchall()
+        cursor.execute("""
+            SELECT r.*, p.nama_produk FROM riwayat_stok r
+            JOIN produk p ON r.produk_id = p.id
+            ORDER BY r.tanggal ASC
+        """)
+        riwayat = cursor.fetchall()
+        cursor.close()
+        db.close()
+        return render_template('grafik.html', produk_list=produk_list, riwayat=riwayat)
+    except Exception as e:
+        return f"Error: {e}", 500
+
 # jalanin aplikasi di port dari environment variabel
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
