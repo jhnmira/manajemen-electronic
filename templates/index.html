@@ -108,14 +108,16 @@
 
       /* tampilan kartu produk */
       .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        display: flex;
+        flex-direction: column;
         gap: 16px;
       }
       .product-card {
         background: var(--surface); border: 1px solid var(--border);
-        border-radius: var(--radius); padding: 20px;
-        display: flex; flex-direction: column; gap: 10px;
+        border-radius: var(--radius); padding: 16px 20px;
+        display: flex; flex-direction: row;
+        align-items: center;
+        gap: 16px;
         transition: border-color 0.2s, transform 0.15s;
         position: relative; overflow: hidden;
       }
@@ -125,8 +127,8 @@
       }
       .product-card:hover { border-color: rgba(124,106,247,0.4); transform: translateY(-2px); }
       .product-card-top { display: flex; align-items: center; justify-content: space-between; }
-      .product-name { font-family: "Syne", sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); }
-      .product-harga { font-family: "Syne", sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--accent3); }
+      .product-name { font-family: "Syne", sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); flex: 1; }
+      .product-harga { font-family: "Syne", sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--accent3); min-width: 120px; text-align: right; }
 
       /* badge kategori */
       .kategori-badge {
@@ -176,7 +178,6 @@
         .stats-row { grid-template-columns: 1fr; }
         header { padding: 0 20px; }
         main { padding: 32px 16px; }
-        .cards-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
       }
     </style>
   </head>
