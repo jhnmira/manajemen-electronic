@@ -46,15 +46,16 @@ def tambah():
         "INSERT INTO produk (nama_produk, kategori, harga, stok) VALUES (%s,%s,%s,%s)",
         (nama, kategori, harga, stok)
     )
+    produk_id = cursor.lastrowid
+    # catat riwayat stok awal
+    cursor.execute(
+        "INSERT INTO riwayat_stok (produk_id, stok_lama, stok_baru, keterangan) VALUES (%s,%s,%s,%s)",
+        (produk_id, 0, stok, 'Produk baru ditambahkan')
+    )
     db.commit()
     cursor.close()
     db.close()
     return redirect('/')
-
-# nampilin halaman form tambah produk
-@app.route('/tambah-produk')
-def tambah_produk():
-    return render_template('tambah.html')
 
 # hapus produk berdasarkan id nya
 @app.route('/hapus/<int:id>')
@@ -84,17 +85,31 @@ def update(id):
     nama = request.form['nama_produk']
     kategori = request.form['kategori']
     harga = request.form['harga']
-    stok = request.form['stok']
+    stok_baru = request.form['stok']
     db = get_db()
     cursor = db.cursor()
+    # ambil stok lama dulu
+    cursor.execute("SELECT stok FROM produk WHERE id=%s", (id,))
+    row = cursor.fetchone()
+    stok_lama = row[0] if row else 0
     cursor.execute(
         "UPDATE produk SET nama_produk=%s, kategori=%s, harga=%s, stok=%s WHERE id=%s",
-        (nama, kategori, harga, stok, id)
+        (nama, kategori, harga, stok_baru, id)
+    )
+    # catat riwayat perubahan stok
+    cursor.execute(
+        "INSERT INTO riwayat_stok (produk_id, stok_lama, stok_baru, keterangan) VALUES (%s,%s,%s,%s)",
+        (id, stok_lama, stok_baru, 'Stok diupdate')
     )
     db.commit()
     cursor.close()
     db.close()
     return redirect('/')
+
+# nampilin halaman form tambah produk
+@app.route('/tambah-produk')
+def tambah_produk():
+    return render_template('tambah.html')
 
 # jalanin aplikasi di port dari environment variabel
 if __name__ == "__main__":
