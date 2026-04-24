@@ -1,3 +1,8 @@
+<!-- index.html - Halaman Utama StokApp
+  nampilin statistik, form tambah produk, dan tabel daftar produk
+  pakai Jinja2 template engine dari Flask
+  Library: Google Fonts (Syne, DM Sans)
+-->
 <!doctype html>
 <html lang="id">
   <head>
@@ -513,7 +518,7 @@
       Kelola inventaris stok alat elektronik dengan mudah dan terorganisir.
       </p>
 
-      <!-- Stats -->
+      <!-- statistik ringkasan: total produk, stok, dan nilai dari database -->
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-label">Total Produk</div>
@@ -544,6 +549,7 @@
             <span class="form-title-dot"></span>
             Tambah Produk Baru
           </div>
+          <!-- form create - mengirim data ke route /tambah -->
           <form action="/tambah" method="POST">
             <div class="field">
               <label>Nama Produk</label>
@@ -587,7 +593,7 @@
           </form>
         </div>
 
-        <!-- Tabel Produk -->
+        <!-- tabel read - menampilkan data produk dari database (struktur data: list of tuples) -->
         <div class="table-card">
           <div class="table-header">
             <div class="table-title">Daftar Produk</div>
@@ -615,6 +621,7 @@
                   Rp {{ "{:,.0f}".format(row[3]|float).replace(",",".") }}
                 </td>
                 <td>
+                  <!-- kondisi stok: hijau >10, kuning 1-10, merah habis -->
                   {% if row[4] > 10 %}
                   <span class="stok-badge stok-ok"
                     ><span class="stok-dot"></span>{{ row[4] }}</span
@@ -630,6 +637,7 @@
                   {% endif %}
                 </td>
                 <td>
+                  <!-- tombol aksi edit dan hapus per produk -->
                   <div class="actions">
                     <a href="/edit/{{ row[0] }}" class="btn-edit">Edit</a>
                     <a
