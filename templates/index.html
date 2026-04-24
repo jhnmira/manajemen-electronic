@@ -232,6 +232,13 @@
         <div class="table-count">{{ data|length }} item</div>
       </div>
 
+      <input type="text" id="searchInput" onkeyup="cariProduk()" placeholder="🔍 Cari nama produk atau kategori..." style="
+        width: 100%; padding: 11px 16px; margin-bottom: 16px;
+        background: var(--surface2); border: 1px solid var(--border);
+        border-radius: 9px; color: var(--text); font-family: 'DM Sans', sans-serif;
+        font-size: 0.95rem; outline: none;
+      "/>
+      
       <!-- tampilan kartu produk dari database (struktur data: list of tuples) -->
       {% if data %}
       <div class="cards-grid">
@@ -269,5 +276,21 @@
       {% endif %}
 
     </main>
+    <script>
+      // fitur pencarian produk berdasarkan nama dan kategori
+      function cariProduk() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+          const nama = card.querySelector('.product-name').textContent.toLowerCase();
+          const kategori = card.querySelector('.kategori-badge').textContent.toLowerCase();
+          if (nama.includes(input) || kategori.includes(input)) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+    </script>
   </body>
 </html>
