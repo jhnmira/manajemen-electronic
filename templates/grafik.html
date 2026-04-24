@@ -1,0 +1,322 @@
+<!-- grafik.html - Halaman Grafik Riwayat Stok
+  nampilin grafik perubahan stok per produk
+  pakai Chart.js (library grafik gratis)
+  pakai Jinja2 template engine dari Flask
+-->
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grafik Stok - StokApp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <!-- library Chart.js untuk grafik -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* warna dan ukuran global */
+    :root {
+      --bg: #0a0a0f; --surface: #111118; --surface2: #1a1a24;
+      --border: #2a2a3a; --accent: #7c6af7; --accent2: #e84393;
+      --accent3: #00d4aa; --text: #f0eeff; --muted: #8888aa;
+      --danger: #ff4d6d; --warning: #f5d547; --radius: 14px;
+    }
+
+    /* layout utama - dark theme */
+    body { font-family: "DM Sans", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    /* efek dekoratif background */
+    body::before {
+      content: ""; position: fixed; top: -200px; left: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,106,247,0.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* navigasi sticky */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.85); backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px; display: flex; align-items: center;
+      justify-content: space-between; height: 68px;
+    }
+    .logo {
+      font-family: "Syne", sans-serif; font-weight: 800; font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+    }
+    .back-link {
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; color: var(--muted); font-size: 0.88rem;
+      font-weight: 500; border: 1px solid var(--border);
+      padding: 7px 16px; border-radius: 8px; background: var(--surface2);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-link:hover { color: var(--text); border-color: var(--accent); }
+
+    /* konten utama */
+    main { max-width: 1100px; margin: 0 auto; padding: 48px 24px; position: relative; z-index: 1; }
+
+    /* judul halaman */
+    .page-title { font-family: "Syne", sans-serif; font-size: 1.6rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; }
+    .page-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 32px; }
+
+    /* filter pilih produk */
+    .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .filter-label { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+    .filter-select {
+      padding: 8px 16px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-family: "DM Sans", sans-serif;
+      font-size: 0.9rem; outline: none; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+
+    /* card grafik */
+    .chart-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      position: relative; overflow: hidden; margin-bottom: 28px;
+    }
+    .chart-card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    }
+    .chart-title { font-family: "Syne", sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 20px; color: var(--text); }
+    .chart-wrap { position: relative; height: 300px; }
+
+    /* tabel riwayat */
+    .table-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .table-header {
+      padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+      font-family: "Syne", sans-serif; font-weight: 700; font-size: 1rem;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead th {
+      padding: 10px 16px; text-align: left; font-size: 0.72rem; font-weight: 600;
+      color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase;
+      background: var(--surface2); border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid rgba(42,42,58,0.6); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(124,106,247,0.05); }
+    td { padding: 12px 16px; vertical-align: middle; }
+
+    .stok-naik { color: var(--accent3); font-weight: 600; }
+    .stok-turun { color: var(--danger); font-weight: 600; }
+    .stok-sama { color: var(--muted); font-weight: 600; }
+
+    /* empty state */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+
+    /* animasi */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    main { animation: fadeUp 0.45s ease both; }
+
+    /* responsif HP */
+    @media (max-width: 900px) {
+      header { padding: 0 20px; }
+      main { padding: 32px 16px; }
+      .chart-wrap { height: 220px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">⬡ StokApp</div>
+    <a href="/" class="back-link">← Kembali</a>
+  </header>
+
+  <main>
+    <h1 class="page-title">Grafik Riwayat Stok</h1>
+    <p class="page-sub">Pantau perubahan stok setiap produk dari waktu ke waktu.</p>
+
+    {% if produk_list %}
+    <!-- filter pilih produk -->
+    <div class="filter-row">
+      <span class="filter-label">Pilih Produk:</span>
+      <select class="filter-select" id="filterProduk" onchange="updateGrafik()">
+        <option value="semua">Semua Produk</option>
+        {% for p in produk_list %}
+        <option value="{{ p.id }}">{{ p.nama_produk }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- card grafik -->
+    <div class="chart-card">
+      <div class="chart-title">📈 Perubahan Stok</div>
+      <div class="chart-wrap">
+        <canvas id="grafikStok"></canvas>
+      </div>
+    </div>
+
+    <!-- tabel riwayat -->
+    <div class="table-card">
+      <div class="table-header">📋 Riwayat Perubahan</div>
+      {% if riwayat %}
+      <table id="tabelRiwayat">
+        <thead>
+          <tr>
+            <th>Produk</th>
+            <th>Stok Lama</th>
+            <th>Stok Baru</th>
+            <th>Perubahan</th>
+            <th>Keterangan</th>
+            <th>Tanggal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in riwayat %}
+          <tr data-produk="{{ r.produk_id }}">
+            <td><strong>{{ r.nama_produk }}</strong></td>
+            <td>{{ r.stok_lama }}</td>
+            <td>{{ r.stok_baru }}</td>
+            <td>
+              {% set selisih = r.stok_baru - r.stok_lama %}
+              {% if selisih > 0 %}
+              <span class="stok-naik">+{{ selisih }} ▲</span>
+              {% elif selisih < 0 %}
+              <span class="stok-turun">{{ selisih }} ▼</span>
+              {% else %}
+              <span class="stok-sama">0 —</span>
+              {% endif %}
+            </td>
+            <td>{{ r.keterangan }}</td>
+            <td>{{ r.tanggal.strftime('%d/%m/%Y %H:%M') if r.tanggal else '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <p>Belum ada riwayat perubahan stok.</p>
+        <p style="font-size:0.85rem; margin-top:8px;">Coba tambah atau edit produk dulu!</p>
+      </div>
+      {% endif %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📦</div>
+      <p>Belum ada produk. <a href="/tambah-produk" style="color:var(--accent)">Tambah produk dulu!</a></p>
+    </div>
+    {% endif %}
+  </main>
+
+  <script>
+    // data riwayat dari Flask/Jinja2
+    const riwayatData = [
+      {% for r in riwayat %}
+      {
+        produk_id: {{ r.produk_id }},
+        nama_produk: "{{ r.nama_produk }}",
+        stok_baru: {{ r.stok_baru }},
+        tanggal: "{{ r.tanggal.strftime('%d/%m %H:%M') if r.tanggal else '-' }}"
+      },
+      {% endfor %}
+    ];
+
+    // warna untuk setiap produk
+    const warna = [
+      '#7c6af7', '#e84393', '#00d4aa', '#f5d547',
+      '#ff4d6d', '#4fc3f7', '#ff9800', '#66bb6a'
+    ];
+
+    let chart = null;
+
+    function updateGrafik() {
+      const filterVal = document.getElementById('filterProduk').value;
+
+      // filter data sesuai pilihan
+      let filtered = filterVal === 'semua'
+        ? riwayatData
+        : riwayatData.filter(r => r.produk_id == filterVal);
+
+      // filter tabel
+      document.querySelectorAll('#tabelRiwayat tbody tr').forEach(row => {
+        if (filterVal === 'semua' || row.dataset.produk == filterVal) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // kelompokkan data per produk
+      const produkMap = {};
+      filtered.forEach(r => {
+        if (!produkMap[r.nama_produk]) produkMap[r.nama_produk] = [];
+        produkMap[r.nama_produk].push({ x: r.tanggal, y: r.stok_baru });
+      });
+
+      // buat labels (semua tanggal unik)
+      const labels = [...new Set(filtered.map(r => r.tanggal))];
+
+      // buat dataset per produk
+      const datasets = Object.entries(produkMap).map(([nama, data], i) => ({
+        label: nama,
+        data: labels.map(label => {
+          const found = data.find(d => d.x === label);
+          return found ? found.y : null;
+        }),
+        borderColor: warna[i % warna.length],
+        backgroundColor: warna[i % warna.length] + '22',
+        borderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        tension: 0.3,
+        fill: true,
+        spanGaps: true
+      }));
+
+      // destroy chart lama kalau ada
+      if (chart) chart.destroy();
+
+      // buat chart baru
+      const ctx = document.getElementById('grafikStok').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#f0eeff', font: { family: 'DM Sans', size: 12 } }
+            },
+            tooltip: {
+              backgroundColor: '#1a1a24',
+              borderColor: '#2a2a3a',
+              borderWidth: 1,
+              titleColor: '#f0eeff',
+              bodyColor: '#8888aa'
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#8888aa', font: { size: 11 } },
+              grid: { color: 'rgba(42,42,58,0.5)' }
+            },
+            y: {
+              ticks: { color: '#8888aa', font: { size: 11 } },
+              grid: { color: 'rgba(42,42,58,0.5)' },
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    // tampilkan grafik saat halaman dimuat
+    updateGrafik();
+  </script>
+</body>
+</html>
