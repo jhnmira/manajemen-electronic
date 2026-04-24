@@ -175,9 +175,14 @@
 
       /* responsif untuk HP */
       @media (max-width: 900px) {
-        .stats-row { grid-template-columns: 1fr; }
-        header { padding: 0 20px; }
-        main { padding: 32px 16px; }
+          .stats-row { grid-template-columns: 1fr; }
+          header { padding: 0 20px; }
+          main { padding: 32px 16px; }
+          .product-card { flex-wrap: wrap; }
+          .product-card-top { width: 100%; justify-content: space-between; }
+          .product-name { width: 100%; }
+          .product-harga { width: auto; text-align: left; }
+          .actions { width: 100%; }
       }
     </style>
   </head>
