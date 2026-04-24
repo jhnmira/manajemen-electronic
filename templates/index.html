@@ -1,7 +1,6 @@
-<!-- index.html - Halaman Utama StokApp
-  nampilin statistik, tombol tambah, dan kartu daftar produk
-  pakai Jinja2 template engine dari Flask
-  Library: Google Fonts (Syne, DM Sans)
+<!-- nampilin statistik, tombol tambah, dan kartu daftar produk
+  pakai Jinja2 template engine dari flask
+  library: Google Fonts (Syne, DM Sans)
 -->
 <!doctype html>
 <html lang="id">
@@ -96,28 +95,18 @@
       .btn-add-page:hover { opacity: 0.9; transform: translateY(-1px); }
 
       /* header daftar produk */
-      .products-header {
-        display: flex; align-items: center;
-        justify-content: space-between; margin-bottom: 16px;
-      }
+      .products-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
       .table-title { font-family: "Syne", sans-serif; font-weight: 700; font-size: 1.05rem; }
-      .table-count {
-        font-size: 0.78rem; color: var(--muted); background: var(--surface2);
-        border: 1px solid var(--border); padding: 3px 10px; border-radius: 999px;
-      }
+      .table-count { font-size: 0.78rem; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); padding: 3px 10px; border-radius: 999px; }
 
-      /* tampilan kartu produk */
-      .cards-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
+      /* tampilan kartu produk - grid */
+      .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+
+      /* kartu per produk */
       .product-card {
         background: var(--surface); border: 1px solid var(--border);
-        border-radius: var(--radius); padding: 16px 20px;
-        display: flex; flex-direction: row;
-        align-items: center;
-        gap: 16px;
+        border-radius: var(--radius); padding: 18px;
+        display: flex; flex-direction: column; gap: 10px;
         transition: border-color 0.2s, transform 0.15s;
         position: relative; overflow: hidden;
       }
@@ -126,40 +115,55 @@
         background: linear-gradient(90deg, var(--accent), var(--accent2));
       }
       .product-card:hover { border-color: rgba(124,106,247,0.4); transform: translateY(-2px); }
-      .product-card-top { display: flex; align-items: center; justify-content: space-between; }
-      .product-name { font-family: "Syne", sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); flex: 1; }
-      .product-harga { font-family: "Syne", sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--accent3); text-align: right; white-space: nowrap; }
+
+      /* baris atas: kategori + stok */
+      .product-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+      /* nama produk */
+      .product-name { font-family: "Syne", sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--text); }
+
+      /* harga produk */
+      .product-harga { font-family: "Syne", sans-serif; font-weight: 700; font-size: 1rem; color: var(--accent3); }
+
+      /* tombol aksi edit (pensil) dan hapus (tong sampah) */
+      .actions { display: flex; gap: 8px; margin-top: 4px; }
+      .btn-edit {
+        flex: 1; padding: 8px; border-radius: 7px; border: none;
+        background: rgba(124,106,247,0.15); color: #a49fff;
+        border: 1px solid rgba(124,106,247,0.25);
+        text-decoration: none; display: flex; align-items: center;
+        justify-content: center; font-size: 1.1rem;
+        transition: background 0.2s, transform 0.15s; cursor: pointer;
+      }
+      .btn-edit:hover { background: rgba(124,106,247,0.25); transform: translateY(-1px); }
+      .btn-delete {
+        flex: 1; padding: 8px; border-radius: 7px; border: none;
+        background: rgba(255,77,109,0.1); color: #ff6b87;
+        border: 1px solid rgba(255,77,109,0.2);
+        text-decoration: none; display: flex; align-items: center;
+        justify-content: center; font-size: 1.1rem;
+        transition: background 0.2s, transform 0.15s; cursor: pointer;
+      }
+      .btn-delete:hover { background: rgba(255,77,109,0.2); transform: translateY(-1px); }
 
       /* badge kategori */
       .kategori-badge {
         display: inline-block; padding: 3px 10px; border-radius: 999px;
-        font-size: 0.75rem; font-weight: 500;
+        font-size: 0.72rem; font-weight: 500;
         background: rgba(124,106,247,0.12); color: #a49fff;
         border: 1px solid rgba(124,106,247,0.2);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;
       }
 
       /* badge stok */
-      .stok-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.83rem; font-weight: 500; }
-      .stok-dot { width: 6px; height: 6px; border-radius: 50%; }
+      .stok-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 500; white-space: nowrap; }
+      .stok-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
       .stok-ok .stok-dot { background: var(--accent3); }
       .stok-ok { color: var(--accent3); }
       .stok-warn .stok-dot { background: var(--warning); }
       .stok-warn { color: var(--warning); }
       .stok-empty .stok-dot { background: var(--danger); }
       .stok-empty { color: var(--danger); }
-
-      /* tombol aksi edit dan hapus */
-      .actions { display: flex; gap: 8px; margin-top: 4px; flex-shrink: 0; }
-      .btn-edit, .btn-delete {
-        padding: 7px 16px; border-radius: 7px; border: none;
-        font-family: "DM Sans", sans-serif; font-size: 0.82rem; font-weight: 500;
-        cursor: pointer; text-decoration: none; display: inline-block;
-        transition: opacity 0.2s, transform 0.15s;
-      }
-      .btn-edit { background: rgba(124,106,247,0.15); color: #a49fff; border: 1px solid rgba(124,106,247,0.25); }
-      .btn-edit:hover { background: rgba(124,106,247,0.25); transform: translateY(-1px); }
-      .btn-delete { background: rgba(255,77,109,0.1); color: #ff6b87; border: 1px solid rgba(255,77,109,0.2); }
-      .btn-delete:hover { background: rgba(255,77,109,0.2); transform: translateY(-1px); }
 
       /* tampilan kosong jika belum ada produk */
       .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
@@ -175,14 +179,10 @@
 
       /* responsif untuk HP */
       @media (max-width: 900px) {
-          .stats-row { grid-template-columns: 1fr; }
-          header { padding: 0 20px; }
-          main { padding: 32px 16px; }
-          .product-card { flex-wrap: wrap; }
-          .product-card-top { width: 100%; justify-content: space-between; }
-          .product-name { width: 100%; }
-          .product-harga { width: auto; text-align: left; }
-          .actions { width: 100%; }
+        .stats-row { grid-template-columns: 1fr; }
+        header { padding: 0 20px; }
+        main { padding: 32px 16px; }
+        .cards-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
       }
     </style>
   </head>
@@ -234,6 +234,7 @@
       <div class="cards-grid">
         {% for row in data %}
         <div class="product-card">
+          <!-- baris atas: kategori dan stok -->
           <div class="product-card-top">
             <span class="kategori-badge">{{ row[2] }}</span>
             <!-- kondisi stok: hijau >10, kuning 1-10, merah habis -->
@@ -245,12 +246,14 @@
             <span class="stok-badge stok-empty"><span class="stok-dot"></span>Habis</span>
             {% endif %}
           </div>
+          <!-- nama produk -->
           <div class="product-name">{{ row[1] }}</div>
+          <!-- harga produk -->
           <div class="product-harga">Rp {{ "{:,.0f}".format(row[3]|float).replace(",",".") }}</div>
-          <!-- tombol aksi edit dan hapus per produk -->
+          <!-- tombol edit (pensil) dan hapus (tong sampah) -->
           <div class="actions">
-            <a href="/edit/{{ row[0] }}" class="btn-edit">Edit</a>
-            <a href="/hapus/{{ row[0] }}" class="btn-delete" onclick="return confirm('Hapus produk ini?');">Hapus</a>
+            <a href="/edit/{{ row[0] }}" class="btn-edit" title="Edit">✏️</a>
+            <a href="/hapus/{{ row[0] }}" class="btn-delete" title="Hapus" onclick="return confirm('Hapus produk ini?');">🗑️</a>
           </div>
         </div>
         {% endfor %}
