@@ -128,7 +128,7 @@
       .product-card:hover { border-color: rgba(124,106,247,0.4); transform: translateY(-2px); }
       .product-card-top { display: flex; align-items: center; justify-content: space-between; }
       .product-name { font-family: "Syne", sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); flex: 1; }
-      .product-harga { font-family: "Syne", sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--accent3); min-width: 120px; text-align: right; }
+      .product-harga { font-family: "Syne", sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--accent3); text-align: right; white-space: nowrap; }
 
       /* badge kategori */
       .kategori-badge {
@@ -149,7 +149,7 @@
       .stok-empty { color: var(--danger); }
 
       /* tombol aksi edit dan hapus */
-      .actions { display: flex; gap: 8px; margin-top: 4px; }
+      .actions { display: flex; gap: 8px; margin-top: 4px; flex-shrink: 0; }
       .btn-edit, .btn-delete {
         padding: 7px 16px; border-radius: 7px; border: none;
         font-family: "DM Sans", sans-serif; font-size: 0.82rem; font-weight: 500;
