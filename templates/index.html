@@ -200,7 +200,7 @@
       /* TWO-COLUMN LAYOUT */
       .layout {
         display: grid;
-        grid-template-columns: 340px 1fr;
+        grid-template-columns: 1fr;
         gap: 28px;
         align-items: start;
       }
@@ -486,6 +486,25 @@
       .layout {
         animation: fadeUp 0.5s 0.15s ease both;
       }
+      
+      /* tombol menuju halaman tambah produk */
+      .btn-add-page {
+          display: inline-block;
+          padding: 13px 28px;
+          background: linear-gradient(135deg, var(--accent), #5b4de0);
+          color: #fff;
+          font-family: "Syne", sans-serif;
+          font-weight: 700;
+          font-size: 0.95rem;
+          border-radius: 9px;
+          text-decoration: none;
+          margin-bottom: 28px;
+          transition: opacity 0.2s, transform 0.15s;
+      }
+      .btn-add-page:hover {
+          opacity: 0.9;
+          transform: translateY(-1px);
+      }
 
       @media (max-width: 900px) {
         .layout {
@@ -549,56 +568,8 @@
       </div>
 
       <div class="layout">
-        <!-- Form Tambah -->
-        <div class="form-card">
-          <div class="form-title">
-            <span class="form-title-dot"></span>
-            Tambah Produk Baru
-          </div>
-          <!-- form create - mengirim data ke route /tambah -->
-          <form action="/tambah" method="POST">
-            <div class="field">
-              <label>Nama Produk</label>
-              <input
-                type="text"
-                name="nama_produk"
-                placeholder="Masukkan nama produk..."
-                required
-              />
-            </div>
-            <div class="field">
-              <label>Kategori</label>
-              <input
-                type="text"
-                name="kategori"
-                placeholder="Contoh: Smartphone, Laptop, Aksesoris..."
-                required
-              />
-            </div>
-            <div class="field">
-              <label>Harga (Rp)</label>
-              <input
-                type="number"
-                name="harga"
-                placeholder="0"
-                min="0"
-                required
-              />
-            </div>
-            <div class="field">
-              <label>Stok</label>
-              <input
-                type="number"
-                name="stok"
-                placeholder="0"
-                min="0"
-                required
-              />
-            </div>
-            <button class="btn-primary" type="submit">+ Tambah Produk</button>
-          </form>
-        </div>
-
+        <!-- tombol menuju halaman tambah produk -->
+        <a href="/tambah-produk" class="btn-add-page">+ Tambah Produk</a>
         <!-- tabel read - menampilkan data produk dari database (struktur data: list of tuples) -->
         <div class="table-card">
           <div class="table-header">
